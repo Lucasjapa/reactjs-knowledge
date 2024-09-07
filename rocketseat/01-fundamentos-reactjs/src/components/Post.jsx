@@ -7,9 +7,12 @@ import {useState} from "react";
 
 export function Post({author, publishedAt, content}) {
   const [comments, setComments] = useState([
-    1,
-    2
+    'Post muito bacana, hein?!'
   ])
+
+  const [neaCommentText, setNewCommentText] = useState('')
+
+
   // Usando o INTL
   // const publishedDateFormatted = new Intl.DateTimeFormat('pt-BR', {
   //   day: '2-digit',
@@ -32,8 +35,25 @@ export function Post({author, publishedAt, content}) {
   function handleCreateNewComment() {
     event.preventDefault()
 
+    const newCommentText = event.target.comment.value
+
     // imutabilidade
-    setComments([...comments, comments.length + 1])
+    setComments([...comments, newCommentText])
+    setNewCommentText('')
+  }
+
+  function handleNewCommentChange() {
+    setNewCommentText(event.target.value)
+  }
+
+  function deleteComment(commentToDelete) {
+    // imutabilidade -> as variáveis não sofrem mutação, nós criamos um novo valor (um novo espaço na memória)
+
+    const commentsWithoutDeletedOne = comments.filter(comment => {
+      return comment !== commentToDelete
+    })
+
+    setComments(commentsWithoutDeletedOne)
   }
 
   return (
@@ -54,9 +74,9 @@ export function Post({author, publishedAt, content}) {
       <div className={styles.content}>
         {content.map(item => {
           if (item.type === 'paragraph') {
-            return <p>{item.content}</p>
+            return <p key={item.content}>{item.content}</p>
           } else {
-            return <p><a href="#">{item.content}</a></p>
+            return <p key={item.content}><a href="#">{item.content}</a></p>
           }
         })}
         <p>
@@ -70,7 +90,10 @@ export function Post({author, publishedAt, content}) {
         <strong>Deixe seu feedback</strong>
 
         <textarea
+          name="comment"
           placeholder="Deixe um comentário"
+          value={neaCommentText}
+          onChange={handleNewCommentChange}
         />
 
         <footer>
@@ -80,7 +103,11 @@ export function Post({author, publishedAt, content}) {
 
       <div className={styles.commentList}>
         {comments.map(comment => {
-          return <Comment/>
+          return <Comment
+            key={comment}
+            content={comment}
+            onDeleteComment={deleteComment}
+          />
         })}
       </div>
     </article>
